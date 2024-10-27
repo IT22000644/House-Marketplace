@@ -54,7 +54,7 @@ function CreateListing() {
   useEffect(() => {
     onAuthStateChanged(auth, (user) => {
       if (user) {
-        setFormData((prevState) => ({ ...prevState, userId: user.uid }));
+        setFormData((prevState) => ({ ...prevState, userRef: user.uid }));
       } else {
         navigate("/sign-up");
       }
@@ -117,11 +117,6 @@ function CreateListing() {
       geolocation.lat = data.results[0]?.geometry.location.lat;
       geolocation.lng = data.results[0]?.geometry.location.lng;
 
-      location =
-        data.status === "ZERO_RESULTS"
-          ? undefined
-          : data.results[0]?.formatted_address;
-
       if (location === undefined || location.includes("undefined")) {
         setLoading(false);
         toast.error("Invalid address");
@@ -132,7 +127,6 @@ function CreateListing() {
     } else {
       geolocation.lat = latitude;
       geolocation.lng = longitude;
-      location = address;
     }
 
     // store images
@@ -188,6 +182,8 @@ function CreateListing() {
       imageUrls,
       timestamp: serverTimestamp(),
     };
+
+    formDataCopy.location = address;
 
     delete formDataCopy.images;
     delete formDataCopy.address;
