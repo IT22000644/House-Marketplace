@@ -1,8 +1,16 @@
-import { useState } from "react";
+import { useEffect, useState } from "react";
 import { getAuth, updateProfile } from "firebase/auth";
 import { Link, useNavigate } from "react-router-dom";
 import { db } from "../firebase.config";
-import { doc, updateDoc } from "firebase/firestore";
+import {
+  doc,
+  updateDoc,
+  collection,
+  where,
+  orderBy,
+  query,
+  getDocs,
+} from "firebase/firestore";
 import { toast } from "react-toastify";
 import arrowRight from "../assets/svg/keyboardArrowRightIcon.svg";
 import homeIcon from "../assets/svg/homeIcon.svg";
@@ -10,12 +18,38 @@ import homeIcon from "../assets/svg/homeIcon.svg";
 function Profile() {
   const auth = getAuth();
   const [changeDetails, setChangeDetails] = useState(false);
+  const [loading, setLoading] = useState(true);
+  const [listings, setListings] = useState([]);
   const [formData, setFormData] = useState({
     name: auth.currentUser.displayName,
     email: auth.currentUser.email,
   });
 
   const { name, email } = formData;
+
+  useEffect(() => {
+    const fetchUserListings = async () => {
+      const listingRef = collection(db, "listings");
+      const q = query(
+        listingRef,
+        where("userRef", "==", auth.currentUser.uid),
+        orderBy("timestamp", "desc")
+      );
+      const querySnap = await getDocs(q);
+
+      let listings = [];
+
+      querySnap.forEach((doc) => {
+        console.log(doc.id, " => ", doc.data());
+        listings.push({ id: doc.id, data: doc.data() });
+      });
+
+      setListings(listings);
+      setLoading(false);
+    };
+
+    fetchUserListings();
+  }, [auth.currentUser.uid]);
 
   const navigate = useNavigate();
 
