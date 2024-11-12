@@ -7,7 +7,7 @@ function Explore() {
   return (
     <div className="explore">
       <header>
-        <p className="Explore">Explore</p>
+        <p className="pageHeader">Explore</p>
       </header>
       <main>
         {/* Slider */}
